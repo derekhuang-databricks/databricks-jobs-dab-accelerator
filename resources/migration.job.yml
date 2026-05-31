@@ -1,0 +1,47 @@
+# Migration workflow: inventory a job, extract its assets, scaffold a DAB, then a git repo.
+
+resources:
+  jobs:
+    migration_workflow:
+      name: Migration Workflow
+
+      parameters:
+        - name: job_id
+          default: ""
+        - name: target_folder_prefix
+          default: migration
+
+      tasks:
+        - task_key: inventory_workspace_assets
+          notebook_task:
+            notebook_path: ../src/1_inventory_workspace_assets.py
+            base_parameters:
+              job_id: "{{job.parameters.job_id}}"
+              manifest_prefix: "{{job.parameters.target_folder_prefix}}"
+
+        - task_key: extract_from_manifest
+          depends_on:
+            - task_key: inventory_workspace_assets
+          notebook_task:
+            notebook_path: ../src/2_extract_from_manifest.py
+            base_parameters:
+              job_id: "{{job.parameters.job_id}}"
+              manifest_prefix: "{{job.parameters.target_folder_prefix}}"
+
+        - task_key: scaffold_bundle
+          depends_on:
+            - task_key: extract_from_manifest
+          notebook_task:
+            notebook_path: ../src/3_scaffold_bundle.py
+            base_parameters:
+              job_id: "{{job.parameters.job_id}}"
+              manifest_prefix: "{{job.parameters.target_folder_prefix}}"
+
+        - task_key: create_git_scaffold
+          depends_on:
+            - task_key: scaffold_bundle
+          notebook_task:
+            notebook_path: ../src/4_create_git_scaffold.py
+            base_parameters:
+              job_id: "{{job.parameters.job_id}}"
+              manifest_prefix: "{{job.parameters.target_folder_prefix}}"

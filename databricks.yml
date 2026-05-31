@@ -1,0 +1,13 @@
+# Databricks asset bundle for the migration scripts.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: production_migration_accelerator
+
+include:
+  - resources/*.yml
+  - resources/**/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
